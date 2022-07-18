@@ -1,0 +1,37 @@
+
+[item]
+drs_pivelaxe_gold=Gold Pivelaxe
+drs_pivelaxe_frost=Frost Pivelaxe
+drs_pivelaxe_demonic=Demonic Pivelaxe
+drs_pivelaxe_ivy=Ivy Pivelaxe
+drs_pivelaxe_tungsten=Tungsten Pivelaxe
+drs_pivelaxe_ice=Ice Pivelaxe
+
+[ui]
+drs_filters=Mining Filter
+drs_all=Set All
+drs_none=Clear All
+
+[categories]
+drs_clutter=Clutter
+drs_clutter_desc=Grass, cattails, rocks, breakables
+drs_objects=Objects
+drs_objects_desc=Objects and furniture
+drs_transport=Transportation
+drs_transport_desc=Ladders, minecart tracks, far travel
+drs_storage=Storage
+drs_storage_desc=Chests and storage boxes
+drs_crafting=Crafting
+drs_crafting_desc=Crafting and processing stations
+drs_ore=Ores
+drs_ore_desc=Ores and minerals
+drs_walls=Walls and Doors
+drs_walls_desc=Walls, doors, fences, gates
+drs_harvestable=Harvestable
+drs_harvestable_desc=Farmables, trees, bushes
+drs_wiring=Wiring
+drs_wiring_desc=Traps, switches, wiring objects
+drs_flooring=Flooring tiles
+drs_flooring_desc=Flooring, paths, brick, farmland tiles
+drs_terrain=Terrain tiles
+drs_terrain_desc=Rock, grass tiles, sand, ice tiles, others

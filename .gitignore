@@ -1,0 +1,24 @@
+
+### IDE ###
+.idea/**
+*.iml
+!.idea/modules.xml
+!.idea/vcs.xml
+!.idea/inspectionProfiles/Project_Default.xml
+
+### Build ###
+out/
+*.class
+*.log
+*.jar
+*.zip
+hs_err_pid*
+
+### Gradle ###
+.gradle/
+build/
+!gradle-wrapper.jar
+
+### Specific ###
+steam_appid.txt
+latest-crash.log
