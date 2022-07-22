@@ -316,4 +316,16 @@ public class PlannerLevelEvent extends LevelEvent {
         super.over();
         if (this.cursorDrawElement != null) this.cursorDrawElement.remove();
     }
+
+    @Override
+    public void onDispose() {
+        super.onDispose();
+        if (!this.isOver()) this.over();
+    }
+
+    @Override
+    public void onUnloading() {
+        super.onUnloading();
+        if (!this.isOver()) this.over();
+    }
 }
