@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ObjectCategories {
     public static final String EXCLUDED_TAG = "EXCLUDED";
     public static final String[] ORDERING = {
-            "ore", "walls", "harvestable", "crafting", "storage", "transport", "objects", "wiring", "clutter"
+            "ore", "walls", "harvestable", "crafting", "storage", "objects", "transport", "wiring", "clutter"
     };
     public static final Map<String, Set<String>> COMPUTED = new LinkedHashMap<>();
     static { for (String s : ORDERING) COMPUTED.computeIfAbsent(s, k -> ConcurrentHashMap.newKeySet()); }

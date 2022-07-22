@@ -100,8 +100,8 @@ public class MultitoolLevelEvent extends LevelEvent {
     }
 
     public MiningTarget getTarget(int tileX, int tileY) {
-        int objectId = level.getObjectID(tileX, tileY);
-        int tileId = level.getTileID(tileX, tileY);
+        int objectId = this.level.getObjectID(tileX, tileY);
+        int tileId = this.level.getTileID(tileX, tileY);
         if (objectId != 0) {
             return new MiningTarget(true, objectId, tileX, tileY);
         } else if (tileId != 0) {
@@ -113,14 +113,14 @@ public class MultitoolLevelEvent extends LevelEvent {
     public void onTargetUpdate(int tileX, int tileY, int targetsHash) {
         MiningTarget target = getTarget(tileX, tileY);
         if (target == null) {
-            attackHandler.requestTargetRecheck();
+            this.attackHandler.requestTargetRecheck();
             return;
         }
 
         targets.addLast(target);
         if (targetsHash != this.targetsHash()) {
             this.targetsValid = false;
-            attackHandler.requestTargetRefresh();
+            this.attackHandler.requestTargetRefresh();
         }
         this.startDamage = true;
     }
@@ -176,7 +176,7 @@ public class MultitoolLevelEvent extends LevelEvent {
         super.clientTick();
         if (!this.isOver()) {
             if (this.player == this.level.getClient().getPlayer()) {
-                if (targets.size() >= maxTargets) return;
+                if (targets.size() >= this.maxTargets) return;
 
                 GameCamera camera = GlobalData.getCurrentState().getCamera();
                 this.levelX = camera.getMouseLevelPosX();
@@ -184,7 +184,7 @@ public class MultitoolLevelEvent extends LevelEvent {
                 int tileX, tileY;
                 if (Settings.smartMining) {
                     // TODO filter target priority
-                    HUD.SmartMineTarget target = HUD.getFirstSmartHitTile(level, player, item, this.levelX, this.levelY);
+                    HUD.SmartMineTarget target = HUD.getFirstSmartHitTile(this.level, this.player, this.item, this.levelX, this.levelY);
                     if (target == null) return;
                     tileX = target.x;
                     tileY = target.y;
@@ -208,7 +208,7 @@ public class MultitoolLevelEvent extends LevelEvent {
                         targets.addLast(target);  // H...T << t
                         this.lastAddition = this.level.getWorldEntity().getTime();
                         this.attackHandler.sendTargetUpdate(tileX, tileY, this.targetsHash());
-                        if (!startDamage) {
+                        if (!this.startDamage) {
                             // visual/audio stuff
                             this.startDamage = true;
                             doDamage();
@@ -225,7 +225,7 @@ public class MultitoolLevelEvent extends LevelEvent {
         if (this.startDamage) {
             this.attackTimer -= delta;
             if (this.attackTimer <= 0) {
-                this.attackTimer = attackInterval;
+                this.attackTimer = this.attackInterval;
                 doDamage();
             }
         }
@@ -234,11 +234,11 @@ public class MultitoolLevelEvent extends LevelEvent {
     private void recheckTargets() {
         ToolDamageItem toolItem = (ToolDamageItem)this.item.item;
         targets.removeIf(t -> {
-            if (level.getObjectID(t.x, t.y) == 0 && level.getTileID(t.x, t.y) == 0) return true;
+            if (this.level.getObjectID(t.x, t.y) == 0 && this.level.getTileID(t.x, t.y) == 0) return true;
             if (Math.hypot(this.player.x - (float)(t.x * 32 + 16), this.player.y - (float)(t.y * 32 + 16)) > this.targetRangeFactor * toolItem.getMiningRange(this.item, this.player))
                 return true;
-            if (t.isObject) return level.getObjectID(t.x, t.y) != t.id;
-            else return level.getTileID(t.x, t.y) != t.id;
+            if (t.isObject) return this.level.getObjectID(t.x, t.y) != t.id;
+            else return this.level.getTileID(t.x, t.y) != t.id;
         });
     }
 
@@ -249,7 +249,7 @@ public class MultitoolLevelEvent extends LevelEvent {
         farTargets.clear();
         currentlyMining.clear();
         Iterator<MiningTarget> iterator = targets.iterator();   // first H...T last
-        for (int i = 0; i < maxMining; i++) {
+        for (int i = 0; i < this.maxMining; i++) {
             if (!iterator.hasNext()) break;
             MiningTarget target = iterator.next();
             if (!toolItem.isTileInRange(this.level, target.x, target.y, this.player, this.item)){
@@ -266,7 +266,7 @@ public class MultitoolLevelEvent extends LevelEvent {
         MiningTarget recentTarget = targets.peekLast();
         if (recentTarget == null) return true;
         if (recentTarget.sameTileAs(tileX, tileY)) {
-            return this.level.getWorldEntity().getTime() - this.lastAddition < smartMineSelectInterval;
+            return this.level.getWorldEntity().getTime() - this.lastAddition < this.smartMineSelectInterval;
         }
         for (MiningTarget target : targets) {
             if (target.sameTileAs(tileX, tileY)) return false;

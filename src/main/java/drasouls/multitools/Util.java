@@ -1,6 +1,13 @@
 package drasouls.multitools;
 
+import necesse.engine.modifiers.Modifier;
+import necesse.engine.modifiers.ModifierManager;
+import necesse.entity.mobs.PlayerMob;
+import necesse.entity.mobs.buffs.BuffManager;
 import necesse.level.maps.Level;
+
+import java.lang.reflect.Field;
+import java.util.function.Supplier;
 
 public class Util {
     private static void printSide(Level level, String append, int ignored) {
@@ -21,5 +28,50 @@ public class Util {
 
     public static void printSide(Level level, String append) {
         printSide(level, append, 1);
+    }
+
+    public static <T> void runWithModifierChange(BuffManager buffManager, Modifier<T> modifier, T value, Runnable fn) {
+        try {
+            Field modifierField = ModifierManager.class.getDeclaredField("modifiers");
+            modifierField.setAccessible(true);
+            Object[] modifiers = (Object[]) modifierField.get(buffManager);
+
+            T origValue = buffManager.getModifier(modifier);
+            modifiers[modifier.index] = value;
+            fn.run();
+            modifiers[modifier.index] = origValue;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static <R> R wrapWithDirChange(PlayerMob player, int toDir, Supplier<R> fn) {
+        if ((toDir & 0x1000) == 0) return fn.get();
+        int origDir = player.dir;
+        int origAttackDir = player.beforeAttackDir;
+        boolean origAttacking = player.isAttacking;
+        player.beforeAttackDir = toDir & 0xf;
+        player.isAttacking = true;
+        R ret = fn.get();
+        player.beforeAttackDir = origAttackDir;
+        player.isAttacking = origAttacking;
+        player.dir = origDir;
+        return ret;
+    }
+
+    public static void runWithDirChange(PlayerMob player, int toDir, Runnable fn) {
+        if ((toDir & 0x1000) == 0) {
+            fn.run();
+            return;
+        }
+        int origDir = player.dir;
+        int origAttackDir = player.beforeAttackDir;
+        boolean origAttacking = player.isAttacking;
+        player.beforeAttackDir = toDir & 0xf;
+        player.isAttacking = true;
+        fn.run();
+        player.beforeAttackDir = origAttackDir;
+        player.isAttacking = origAttacking;
+        player.dir = origDir;
     }
 }

@@ -135,7 +135,7 @@ public class MultitoolAttackHandler extends AttackHandler {
         int attackX = this.event.levelX;
         int attackY = this.event.levelY;
 
-        if (animCounter >= animAttacks) {
+        if (this.animCounter >= this.animAttacks) {
             Packet attackContent = new Packet();
             this.item.item.setupAttackContentPacket(new PacketWriter(attackContent), this.player.getLevel(), attackX, attackY, this.player, this.item);
             this.player.showAttack(this.item, attackX, attackY, this.seed, attackContent);
@@ -143,9 +143,9 @@ public class MultitoolAttackHandler extends AttackHandler {
                 ServerClient client = this.player.getServerClient();
                 this.player.getLevel().getServer().network.sendToClientsAtExcept(new PacketShowAttack(this.player, this.item, attackX, attackY, this.seed, attackContent), client, client);
             }
-            animCounter = 0;
+            this.animCounter = 0;
         }
-        animCounter++;
+        this.animCounter++;
     }
 
     // Mouse button up

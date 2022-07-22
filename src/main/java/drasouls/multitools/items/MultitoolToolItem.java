@@ -4,6 +4,8 @@ import drasouls.multitools.ObjectCategories;
 import drasouls.multitools.TileCategories;
 import drasouls.multitools.items.multitool.MultitoolAttackHandler;
 import drasouls.multitools.ui.MultitoolSidebarForm;
+import necesse.engine.Screen;
+import necesse.engine.localization.Localization;
 import necesse.engine.network.PacketReader;
 import necesse.engine.network.gameNetworkData.GNDItem;
 import necesse.engine.network.gameNetworkData.GNDItemMap;
@@ -13,7 +15,10 @@ import necesse.engine.network.server.ServerClient;
 import necesse.entity.levelEvent.toolItemEvent.ToolItemEvent;
 import necesse.entity.mobs.PlayerMob;
 import necesse.entity.mobs.attackHandler.AttackHandler;
+import necesse.gfx.GameColor;
 import necesse.gfx.forms.presets.sidebar.SidebarForm;
+import necesse.gfx.gameTooltips.ListGameTooltips;
+import necesse.gfx.gameTooltips.StringTooltips;
 import necesse.inventory.InventoryItem;
 import necesse.inventory.PlayerInventorySlot;
 import necesse.inventory.item.Item;
@@ -43,16 +48,29 @@ public class MultitoolToolItem extends CustomPickaxeToolItem {
         super(animSpeed, toolDps, toolTier, attackDmg, attackRange, knockback, enchantCost);
     }
 
+    @Override
+    public ListGameTooltips getTooltips(InventoryItem item, PlayerMob perspective) {
+        ListGameTooltips tooltips = super.getTooltips(item, perspective);
+        if (!Screen.isKeyDown(340) && !Screen.isKeyDown(344)) {
+            tooltips.add(new StringTooltips(Localization.translate("ui", "shiftmoreinfo"), GameColor.LIGHT_GRAY));
+        } else {
+            tooltips.add(Localization.translate("itemtooltip", "drs_pivelaxe_tip1"));
+            tooltips.add(Localization.translate("itemtooltip", "drs_pivelaxe_tip2"));
+            tooltips.add(Localization.translate("itemtooltip", "drs_pivelaxe_tip3"));
+        }
+        return tooltips;
+    }
+
     public int getMaxMining() {
-        return maxMining;
+        return this.maxMining;
     }
 
     public int getMaxTargets() {
-        return maxTargets;
+        return this.maxTargets;
     }
 
     public float getTargetRangeFactor() {
-        return targetRangeFactor;
+        return this.targetRangeFactor;
     }
 
     public static GNDItemMap getCategoryFilter(InventoryItem item) {
@@ -70,6 +88,16 @@ public class MultitoolToolItem extends CustomPickaxeToolItem {
     @Override
     public SidebarForm getSidebar(InventoryItem item) {
         return new MultitoolSidebarForm(item, getCategoryFilter(item));
+    }
+
+    public static boolean isInCategory(Level level, int tileX, int tileY, String cat) {
+        if (level.getObjectID(tileX, tileY) != 0) {
+            return cat.equals(ObjectCategories.findCategory(level.getObject(tileX, tileY).getStringID()));
+        } else if (level.getTileID(tileX, tileY) != 0) {
+            return cat.equals(TileCategories.findCategory(level.getTile(tileX, tileY).getStringID()));
+        }
+
+        return false;
     }
 
     @Override
@@ -104,6 +132,7 @@ public class MultitoolToolItem extends CustomPickaxeToolItem {
         return item;
     }
 
+    // make this thing public
     @Override
     public void runTileDamage(Level level, int levelX, int levelY, int tileX, int tileY, PlayerMob player, InventoryItem item, int damage) {
         super.runTileDamage(level, levelX, levelY, tileX, tileY, player, item, damage);

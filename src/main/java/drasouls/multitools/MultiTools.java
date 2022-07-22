@@ -1,19 +1,32 @@
 package drasouls.multitools;
 
 import drasouls.multitools.items.MultitoolToolItem;
+import drasouls.multitools.items.PlannerItem;
 import drasouls.multitools.packet.PacketUpdateGNDData;
+import drasouls.multitools.ui.PlannerContainerForm;
 import necesse.engine.modLoader.annotations.ModEntry;
+import necesse.engine.network.NetworkClient;
+import necesse.engine.network.Packet;
+import necesse.engine.network.client.Client;
 import necesse.engine.registries.*;
+import necesse.gfx.forms.presets.containerComponent.item.ItemInventoryContainerForm;
 import necesse.gfx.gameTexture.GameTexture;
+import necesse.inventory.container.item.ItemInventoryContainer;
 import necesse.inventory.item.Item;
 
 @ModEntry
 public class MultiTools {
     public static GameTexture aimTexture;
     public static GameTexture targetTexture;
+    public static int plannerContainer;
 
 
     public void init() {
+        plannerContainer = Containers.registerContainer(PlannerContainerForm::new, ItemInventoryContainer::new);
+
+        PacketRegistry.registerPacket(PacketUpdateGNDData.class);
+
+        ItemRegistry.registerItem("drs_planner", new PlannerItem(), 5, true);
         registerPivelaxe("gold",
                 500, 90, 0, 15, 50, 50,
                 450, Item.Rarity.COMMON, 0,
@@ -44,8 +57,6 @@ public class MultiTools {
                 800, Item.Rarity.EPIC, 2,
                 160,
                 24, 8, 3.5f);
-
-        PacketRegistry.registerPacket(PacketUpdateGNDData.class);
     }
 
     public void initResources() {
@@ -65,7 +76,7 @@ public class MultiTools {
         ItemRegistry.registerItem("drs_pivelaxe_" + kind,
                 new MultitoolToolItem(
                         animSpeed,
-                        toolDps * 9/10,
+                        toolDps * 8/10,
                         toolTier,
                         attackDmg * 4/3,
                         attackRange,
@@ -77,5 +88,27 @@ public class MultiTools {
                 ),
                 (float)brokerValue * 9/4,
                 true);
+    }
+
+
+    private static class Containers {
+        private static int registerContainer(IICFormConstructor formCtor, IICConstructor containerCtor) {
+            return ContainerRegistry.registerContainer(
+                    (client, uniqueSeed, packet) ->
+                            formCtor.create(client, containerCtor.create(client.getClient(), uniqueSeed, packet)),
+                    (client, uniqueSeed, packet, serverObject) ->
+                            containerCtor.create(client, uniqueSeed, packet)
+            );
+        }
+
+        @FunctionalInterface
+        private interface IICConstructor {
+            <C extends NetworkClient> ItemInventoryContainer create(C client, int uniqueSeed, Packet packet);
+        }
+
+        @FunctionalInterface
+        private interface IICFormConstructor {
+            <I extends ItemInventoryContainer> ItemInventoryContainerForm<? extends ItemInventoryContainer> create(Client client, I container);
+        }
     }
 }

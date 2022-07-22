@@ -6,11 +6,21 @@ drs_pivelaxe_demonic=Demonic Pivelaxe
 drs_pivelaxe_ivy=Ivy Pivelaxe
 drs_pivelaxe_tungsten=Tungsten Pivelaxe
 drs_pivelaxe_ice=Ice Pivelaxe
+drs_planner=Planner
 
 [ui]
-drs_filters=Mining Filter
-drs_all=Set All
-drs_none=Clear All
+drs_miningfilter=Mining Filter
+drs_setall=Set All
+drs_setnone=Clear All
+drs_plannerputitem=Put a placeable item here:
+
+[itemtooltip]
+drs_pivelaxe_tip1=Use the mining filter to the left when held to select what can be mined.
+drs_pivelaxe_tip2=Drag [input=mouse1] to mine/queue tiles to mine.
+drs_pivelaxe_tip3=Some tiles will be mined simultaneously, others will be queued.
+drs_planner_tip1=[input=mouse1] to set first corner of rectangle, [input=mouse1] again to set other corner.
+drs_planner_tip2=Move near the marks to start placing, starting from the corners.
+drs_planner_tip3=[input=mouse1] while placing to cancel.
 
 [categories]
 drs_clutter=Clutter
