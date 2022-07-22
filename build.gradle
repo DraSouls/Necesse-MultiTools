@@ -6,7 +6,7 @@ plugins {
 def modInfo = [
     modID          : "drasouls.multitools",
     modName        : "MultiTools",
-    modVersion     : "1.0.0",
+    modVersion     : "1.1.1",
     gameVersion    : "0.21.23",
     modDescription : "Multitools to aid in mining and building.",
     author         : "Lyrthras; Nexrem",

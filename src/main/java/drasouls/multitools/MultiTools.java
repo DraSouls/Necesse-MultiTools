@@ -13,6 +13,9 @@ import necesse.gfx.forms.presets.containerComponent.item.ItemInventoryContainerF
 import necesse.gfx.gameTexture.GameTexture;
 import necesse.inventory.container.item.ItemInventoryContainer;
 import necesse.inventory.item.Item;
+import necesse.inventory.recipe.Ingredient;
+import necesse.inventory.recipe.Recipe;
+import necesse.inventory.recipe.Recipes;
 
 @ModEntry
 public class MultiTools {
@@ -65,10 +68,75 @@ public class MultiTools {
     }
 
     public void postInit() {
+        // Categorization
         RegistryAccessor.getObjectsParallelStream(ObjectRegistry.instance)
                 .forEach(ObjectCategories::categorize);
         RegistryAccessor.getTilesParallelStream(TileRegistry.instance)
                 .forEach(TileCategories::categorize);
+
+        // Recipes
+        Recipes.registerModRecipe(new Recipe(
+                "drs_planner", 1,
+                RecipeTechRegistry.WORKSTATION,
+                new Ingredient[]{
+                        new Ingredient("mapfragment", 4),
+                        new Ingredient("goldbar", 1)
+                }
+        ).showBefore("wrench"));
+
+        Recipes.registerModRecipe(new Recipe(
+                "drs_pivelaxe_gold", 1,
+                RecipeTechRegistry.IRON_ANVIL,
+                new Ingredient[]{
+                        new Ingredient("goldpickaxe", 1),
+                        new Ingredient("goldaxe", 1),
+                        new Ingredient("goldshovel", 1),
+                }
+        ).showAfter("goldshovel"));
+        Recipes.registerModRecipe(new Recipe(
+                "drs_pivelaxe_frost", 1,
+                RecipeTechRegistry.IRON_ANVIL,
+                new Ingredient[]{
+                        new Ingredient("frostpickaxe", 1),
+                        new Ingredient("frostaxe", 1),
+                        new Ingredient("frostshovel", 1),
+                }
+        ).showAfter("frostshovel"));
+        Recipes.registerModRecipe(new Recipe(
+                "drs_pivelaxe_demonic", 1,
+                RecipeTechRegistry.DEMONIC,
+                new Ingredient[]{
+                        new Ingredient("demonicpickaxe", 1),
+                        new Ingredient("demonicaxe", 1),
+                        new Ingredient("demonicshovel", 1),
+                }
+        ).showAfter("demonicshovel"));
+        Recipes.registerModRecipe(new Recipe(
+                "drs_pivelaxe_ivy", 1,
+                RecipeTechRegistry.DEMONIC,
+                new Ingredient[]{
+                        new Ingredient("ivypickaxe", 1),
+                        new Ingredient("ivyaxe", 1),
+                        new Ingredient("ivyshovel", 1),
+                }
+        ).showAfter("ivyshovel"));
+        Recipes.registerModRecipe(new Recipe(
+                "drs_pivelaxe_tungsten", 1,
+                RecipeTechRegistry.ADVANCED_WORKSTATION,
+                new Ingredient[]{
+                        new Ingredient("tungstenpickaxe", 1),
+                        new Ingredient("tungstenaxe", 1),
+                        new Ingredient("tungstenshovel", 1),
+                }
+        ).showAfter("tungstenshovel"));
+        Recipes.registerModRecipe(new Recipe(
+                "drs_pivelaxe_ice", 1,
+                RecipeTechRegistry.ADVANCED_WORKSTATION,
+                new Ingredient[]{
+                        new Ingredient("icepickaxe", 2),
+                },
+                true
+        ).showAfter("glacialboots"));
     }
 
 
