@@ -17,6 +17,7 @@ import necesse.entity.mobs.buffs.BuffModifiers;
 import necesse.gfx.camera.GameCamera;
 import necesse.gfx.drawOptions.DrawOptionsList;
 import necesse.gfx.drawables.SortedDrawable;
+import necesse.gfx.ui.HUD;
 import necesse.inventory.InventoryItem;
 import necesse.inventory.item.Item;
 import necesse.level.maps.hudManager.HudDrawElement;
@@ -69,6 +70,8 @@ public class PlannerLevelEvent extends LevelEvent {
                 @Override
                 public void addDrawables(List<SortedDrawable> list, GameCamera camera, PlayerMob perspective) {
                     final DrawOptionsList drawOptions = new DrawOptionsList();
+
+                    final float aimAlpha = active ? 0.5f : 1.0f;
                     forEachPoint((tx, ty) -> {
                         final int drawX = camera.getTileDrawX(tx);
                         final int drawY = camera.getTileDrawY(ty);
@@ -76,7 +79,7 @@ public class PlannerLevelEvent extends LevelEvent {
                         if (drawX < -32 || drawX > camera.getWidth() + 32 || drawY < -32 || drawY > camera.getHeight() + 32)
                             return;
 
-                        drawOptions.add(() -> MultiTools.aimTexture.initDraw().draw(drawX, drawY));
+                        drawOptions.add(() -> MultiTools.blueAimTexture.initDraw().alpha(aimAlpha).draw(drawX, drawY));
                     });
 
                     if (active) {
@@ -87,10 +90,16 @@ public class PlannerLevelEvent extends LevelEvent {
                                 if (drawX < -32 || drawX > camera.getWidth() + 32 || drawY < -32 || drawY > camera.getHeight() + 32)
                                     return;
 
-                                drawOptions.add(() -> MultiTools.targetTexture.initDraw().draw(drawX, drawY));
+                                drawOptions.add(() -> MultiTools.blueTargetTexture.initDraw().draw(drawX, drawY));
                             });
                         }
                     }
+
+                    int lx = Math.min(tile1X, tile2X);
+                    int ly = Math.min(tile1Y, tile2Y);
+                    int hx = Math.max(tile1X, tile2X);
+                    int hy = Math.max(tile1Y, tile2Y);
+                    drawOptions.add(HUD.tileBoundOptions(camera, new Color(128, 128, 255, 128), false, lx, ly, hx, hy));
 
                     list.add(new SortedDrawable() {
                         @Override public int getPriority() { return 100; }
@@ -103,8 +112,8 @@ public class PlannerLevelEvent extends LevelEvent {
 
     private void forEachPoint(BiConsumer<Integer, Integer> fn) {
         int lx = Math.min(this.tile1X, this.tile2X);
-        int hx = Math.max(this.tile1X, this.tile2X);
         int ly = Math.min(this.tile1Y, this.tile2Y);
+        int hx = Math.max(this.tile1X, this.tile2X);
         int hy = Math.max(this.tile1Y, this.tile2Y);
         for (int ty = ly; ty <= hy; ty++) {
             for (int tx = lx; tx <= hx; tx++) {

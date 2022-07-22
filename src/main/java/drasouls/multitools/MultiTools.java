@@ -21,6 +21,8 @@ import necesse.inventory.recipe.Recipes;
 public class MultiTools {
     public static GameTexture aimTexture;
     public static GameTexture targetTexture;
+    public static GameTexture blueAimTexture;
+    public static GameTexture blueTargetTexture;
     public static int plannerContainer;
 
 
@@ -65,6 +67,8 @@ public class MultiTools {
     public void initResources() {
         aimTexture = GameTexture.fromFile("other/drs_aim");
         targetTexture = GameTexture.fromFile("other/drs_target");
+        blueAimTexture = GameTexture.fromFile("other/drs_aim_blue");
+        blueTargetTexture = GameTexture.fromFile("other/drs_target_blue");
     }
 
     public void postInit() {

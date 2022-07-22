@@ -3,10 +3,11 @@ plugins {
 }
 
 // ===== Mod Info ===== //
+
 def modInfo = [
     modID          : "drasouls.multitools",
     modName        : "MultiTools",
-    modVersion     : "1.1.1",
+    modVersion     : "1.1.2",
     gameVersion    : "0.21.23",
     modDescription : "Multitools to aid in mining and building.",
     author         : "Lyrthras; Nexrem",

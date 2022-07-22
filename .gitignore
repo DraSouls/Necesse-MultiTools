@@ -3,6 +3,7 @@
 .idea/**
 *.iml
 !.idea/modules.xml
+!.idea/inspectionProfiles/Project_Default.xml
 
 ### Build ###
 out/
