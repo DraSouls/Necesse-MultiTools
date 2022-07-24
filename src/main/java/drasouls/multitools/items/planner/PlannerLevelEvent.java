@@ -217,6 +217,15 @@ public class PlannerLevelEvent extends LevelEvent {
         return Math.min(8, maxContiguousNeighbors) == numNeighbors;
     }
 
+    private Packet setupACP(InventoryItem invItem, int tx, int ty) {
+        Packet packet = new Packet();
+        invItem.item.setupAttackContentPacket(
+                new PacketWriter(packet), this.level,
+                tx * 32 + 16, ty * 32 + 16,
+                this.player, invItem);
+        return packet;
+    }
+
     @Override
     public void tickMovement(float delta) {
         super.tickMovement(delta);
@@ -262,7 +271,8 @@ public class PlannerLevelEvent extends LevelEvent {
                                 && y >= Math.min(tile1Y, tile2Y)
                                 && y <= Math.max(tile1Y, tile2Y)
                                 && Util.wrapWithDirChange(this.player, objDir, () ->
-                                        item.canPlace(this.level, x * 32 + 16, y * 32 + 16, this.player, invItem, null) == null));
+                                        item.canPlace(this.level, x * 32 + 16, y * 32 + 16, this.player, invItem,
+                                                new PacketReader(setupACP(invItem, x, y))) == null));
                         if (shouldPlace) validPlacements.add(new Point(tx, ty));
                     })
                 )
@@ -275,7 +285,8 @@ public class PlannerLevelEvent extends LevelEvent {
                     float dist = this.player.getDistance(p.x * 32 + 16, p.y * 32 + 16);
                     boolean canPlace = ((PlannerItem) this.item.item).applyItemPair(this.item, (invItem, item) ->
                             Util.wrapWithDirChange(this.player, objDir, () ->
-                                    item.canPlace(this.level, p.x * 32 + 16, p.y * 32 + 16, this.player, invItem, null) == null));
+                                    item.canPlace(this.level, p.x * 32 + 16, p.y * 32 + 16, this.player, invItem,
+                                            new PacketReader(setupACP(invItem, p.x, p.y))) == null));
                     if (dist > maxDist && canPlace) {
                         maxDist = dist;
                         furthest = p;
@@ -286,12 +297,7 @@ public class PlannerLevelEvent extends LevelEvent {
                     Point p = furthest;
 
                     ((PlannerItem) this.item.item).acceptItemPair(this.item, (invItem, item) -> {
-                        Packet packet = new Packet();
-                        Util.runWithDirChange(this.player, objDir, () ->
-                                item.setupAttackContentPacket(
-                                        new PacketWriter(packet), this.level,
-                                        p.x * 32 + 16, p.y * 32 + 16,
-                                        this.player, invItem));
+                        Packet packet = Util.wrapWithDirChange(this.player, objDir, () -> setupACP(invItem, p.x, p.y));
                         item.onAttack(this.level,
                                 p.x * 32 + 16, p.y * 32 + 16,
                                 this.player, this.player.getCurrentAttackHeight(),
