@@ -1,1 +1,40 @@
-rootProject.name = 'MultiTools'
+/*/
+ |  Settings gradle file.
+ |  Edit the mod information and game path here.
+ |  For additional libraries to be bundled, edit build.gradle.
+/*/
+
+
+// ===== Mod info ===== //
+def modInfo = [
+        modID          : "drasouls.multitools",
+        modName        : "MultiTools",
+        modVersion     : "1.2.2",
+        gameVersion    : "auto",
+        modDescription : "Multitools to aid in mining and building.",
+        author         : "Lyrthras; Nexrem",
+        clientside     : false,
+        modDependencies         : [],
+        modOptionalDependencies : [],
+]
+
+
+// ===== Necesse game directory ===== //
+//   "auto" to attempt searching in default locations
+def gamePath = "auto"
+
+
+// ===== Use decompiled sources ===== //
+//   Can be overridden with -PuseDecompiledSources=false
+def useDecompiledSources = true
+
+
+
+// ===== Project name ===== //
+//   No need to edit, inherits mod name from mod info
+rootProject.name = modInfo.modName
+
+
+gradle.ext.modInfo = modInfo
+gradle.ext.gamePath = gamePath
+gradle.ext.useDecompiledSources = useDecompiledSources
