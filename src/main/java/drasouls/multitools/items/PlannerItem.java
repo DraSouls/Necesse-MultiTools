@@ -81,8 +81,7 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
 
     public Optional<PlaceableItem> getCurrentItem(InventoryItem item) {
         return this.getCurrentInventoryItem(item)
-                .map(invItem -> invItem.item)
-                .map(i -> (PlaceableItem) i);
+                .map(invItem -> (PlaceableItem) invItem.item);
     }
 
     public <T> T applyItemPair(InventoryItem item, BiFunction<InventoryItem, PlaceableItem, T> fn) {
@@ -93,10 +92,7 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
 
     public void acceptItemPair(InventoryItem item, BiConsumer<InventoryItem, PlaceableItem> fn) {
         this.getCurrentInventoryItem(item)
-                .map(invItem -> {
-                    fn.accept(invItem, (PlaceableItem) invItem.item);
-                    return 0;
-                });
+                .ifPresent(invItem -> fn.accept(invItem, (PlaceableItem) invItem.item));
     }
 
     public Optional<InventoryItem> getCurrentInventoryItem(InventoryItem item) {

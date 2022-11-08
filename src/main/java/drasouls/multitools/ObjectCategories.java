@@ -48,8 +48,8 @@ public class ObjectCategories {
             cat = CAT(EXCLUDED_TAG);
         } else if (object instanceof GrassObject
                 || object instanceof SnowPileObject
-                || object instanceof SurfaceRockObject
-                || object instanceof SurfaceRockSmall) {
+                || object instanceof SingleRockObject
+                || object instanceof SingleRockSmall) {
             // clutter 1
             // cat = CAT("misc", "clutter");
             cat = CAT("clutter");
