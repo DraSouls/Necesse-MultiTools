@@ -23,6 +23,8 @@ public class MultiTools {
     public static GameTexture targetTexture;
     public static GameTexture blueAimTexture;
     public static GameTexture blueTargetTexture;
+    public static GameTexture greenAimTexture;
+    public static GameTexture greenTargetTexture;
     public static int plannerContainer;
 
 
@@ -69,6 +71,8 @@ public class MultiTools {
         targetTexture = GameTexture.fromFile("other/drs_target");
         blueAimTexture = GameTexture.fromFile("other/drs_aim_blue");
         blueTargetTexture = GameTexture.fromFile("other/drs_target_blue");
+        greenAimTexture = GameTexture.fromFile("other/drs_aim_green");
+        greenTargetTexture = GameTexture.fromFile("other/drs_target_green");
     }
 
     public void postInit() {

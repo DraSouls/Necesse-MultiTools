@@ -47,6 +47,7 @@ public class ObjectCategories {
             // cat = CAT("misc", "summon");
             cat = CAT(EXCLUDED_TAG);
         } else if (object instanceof GrassObject
+                || object instanceof CoinPileObject
                 || object instanceof SnowPileObject
                 || object instanceof SingleRockObject
                 || object instanceof SingleRockSmall) {
@@ -74,7 +75,8 @@ public class ObjectCategories {
         } else if (object instanceof HomestoneObject
                 || object instanceof WaystoneObject
                 || object instanceof LadderDownObject
-                || object instanceof MinecartTrackObject) {
+                || object instanceof MinecartTrackObject
+                || object instanceof TravelstoneObject) {
             // transport
             // cat = CAT("objects", "transport");
             cat = CAT("transport");
@@ -101,7 +103,9 @@ public class ObjectCategories {
             // cat = CAT("furniture");
             cat = CAT("objects");
         } else if (object instanceof FruitBushObject
-                || object instanceof FruitTreeObject) {
+                || object instanceof FruitTreeObject
+                || object instanceof BeeHiveObject
+                || object instanceof ApiaryObject) {
             // fruit trees and bushes
             // cat = CAT("plants", "harvestable");
             cat = CAT("harvestable");
@@ -119,6 +123,7 @@ public class ObjectCategories {
                 || object instanceof LEDPanelObject
                 || object instanceof MaskedPressurePlateObject
                 || object instanceof PressurePlateObject
+                || object instanceof SpikeTrapObject
                 || object instanceof SwitchObject
                 || object instanceof TNTObject
                 || object instanceof TrapObject

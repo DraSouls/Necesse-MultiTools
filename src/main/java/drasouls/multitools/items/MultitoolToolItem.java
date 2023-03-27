@@ -61,6 +61,11 @@ public class MultitoolToolItem extends CustomPickaxeToolItem {
         return tooltips;
     }
 
+    @Override
+    public SidebarForm getSidebar(InventoryItem item) {
+        return new MultitoolSidebarForm(item, getCategoryFilter(item));
+    }
+
     public int getMaxMining() {
         return this.maxMining;
     }
@@ -83,11 +88,6 @@ public class MultitoolToolItem extends CustomPickaxeToolItem {
             item.getGndData().setItem("filter", gndMap);
             return gndMap;
         }
-    }
-
-    @Override
-    public SidebarForm getSidebar(InventoryItem item) {
-        return new MultitoolSidebarForm(item, getCategoryFilter(item));
     }
 
     public static boolean isInCategory(Level level, int tileX, int tileY, String cat) {
@@ -127,7 +127,7 @@ public class MultitoolToolItem extends CustomPickaxeToolItem {
     }
 
     @Override
-    protected InventoryItem runLevelDamage(Level level, int levelX, int levelY, int tileX, int tileY, PlayerMob player, InventoryItem item, int animAttack, PacketReader contentReader) {
+    public InventoryItem runLevelDamage(Level level, int levelX, int levelY, int tileX, int tileY, PlayerMob player, InventoryItem item, int animAttack, PacketReader contentReader) {
         // do nothing
         return item;
     }

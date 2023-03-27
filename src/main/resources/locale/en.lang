@@ -13,6 +13,10 @@ drs_miningfilter=Mining Filter
 drs_setall=Set All
 drs_setnone=Clear All
 drs_plannerputitem=Put a placeable item here:
+drs_plannerusealt=Use item's alternate action
+drs_planneridle=[input=mouse1] to set first corner of rectangle.
+drs_plannerdragging=[input=mouse1] again to set second corner.
+drs_plannerplacing=Move near area to start placing. [input=mouse1] to cancel.
 
 [itemtooltip]
 drs_pivelaxe_tip1=Use the mining filter to the left when held to select what can be mined.

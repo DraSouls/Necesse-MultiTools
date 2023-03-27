@@ -13,10 +13,7 @@ import necesse.entity.mobs.PlayerMob;
 import necesse.gfx.camera.GameCamera;
 import necesse.gfx.drawOptions.DrawOptionsList;
 import necesse.gfx.drawables.SortedDrawable;
-import necesse.gfx.forms.components.FormCheckBox;
-import necesse.gfx.forms.components.FormFlow;
-import necesse.gfx.forms.components.FormInputSize;
-import necesse.gfx.forms.components.FormTextButton;
+import necesse.gfx.forms.components.*;
 import necesse.gfx.forms.components.localComponents.FormLocalCheckBox;
 import necesse.gfx.forms.components.localComponents.FormLocalLabel;
 import necesse.gfx.forms.components.localComponents.FormLocalTextButton;
@@ -30,21 +27,21 @@ import necesse.level.maps.hudManager.HudDrawElement;
 import necesse.level.maps.light.GameLight;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MultitoolSidebarForm extends SidebarForm {
     private static final int CHECK_INTERVAL = 40;
     private static final int SINE_PULSE_PERIOD = 400;
 
+    private static boolean isCollapsed = false;
+    private static int formHeight = 0;
+
     private volatile boolean shouldUpdate = false;
     private volatile float sineTimer;
     private final Map<String, FormCheckBox> checkBoxes = new ConcurrentHashMap<>();
     private final List<Point> highlights = new ArrayList<>();
-    private final InventoryItem item;
     private HudDrawElement highlightDrawElement;
     private Client client;
     private float checkTimer;
@@ -52,11 +49,11 @@ public class MultitoolSidebarForm extends SidebarForm {
     public MultitoolSidebarForm(InventoryItem item, GNDItemMap categoryFilter) {
         super("drs_multitoolsidebar", 160, 120, item);
         Objects.requireNonNull(categoryFilter);
-        this.item = item;
 
         FormFlow listFlow = new FormFlow(5);
         this.addComponent(new FormLocalLabel("ui", "drs_miningfilter", new FontOptions(16), -1, 5, listFlow.next(25)));
 
+        FormTextButton collapse = this.addComponent(new FormTextButton(isCollapsed ? "+" : "-", 135, 5, 20, FormInputSize.SIZE_20, ButtonColor.BASE));
         FormTextButton selectAll = this.addComponent(new FormLocalTextButton("ui", "drs_setall", 5, listFlow.next(0), 70, FormInputSize.SIZE_16, ButtonColor.BASE));
         FormTextButton selectNone = this.addComponent(new FormLocalTextButton("ui", "drs_setnone", 85, listFlow.next(20), 70, FormInputSize.SIZE_16, ButtonColor.BASE));
 
@@ -104,8 +101,19 @@ public class MultitoolSidebarForm extends SidebarForm {
             if (this.client != null)
                 this.client.network.sendPacket(new PacketUpdateGNDData(item, "filter"));
         });
+        collapse.onClicked(e -> {
+            FormTextButton btn = (FormTextButton)e.from;
+            if (isCollapsed) {
+                btn.setText("-");
+                isCollapsed = false;
+            } else {
+                btn.setText("+");
+                isCollapsed = true;
+            }
+        });
 
-        this.setHeight(listFlow.next() + 5);
+        formHeight = listFlow.next() + 5;
+        this.setHeight(formHeight);
     }
 
     @Override
@@ -170,7 +178,11 @@ public class MultitoolSidebarForm extends SidebarForm {
 
     @Override
     public void draw(TickManager tickManager, PlayerMob perspective, Rectangle renderBox) {
+        // for some reason this will be wonky when done from collapse.onClicked
+        this.setHeight(isCollapsed ? 30 : formHeight);
+
         super.draw(tickManager, perspective, renderBox);
+
         float sineTimer = this.sineTimer + tickManager.getDelta();
         this.sineTimer = sineTimer % SINE_PULSE_PERIOD;
 

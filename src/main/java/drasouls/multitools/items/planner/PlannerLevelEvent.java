@@ -17,9 +17,11 @@ import necesse.entity.mobs.buffs.BuffModifiers;
 import necesse.gfx.camera.GameCamera;
 import necesse.gfx.drawOptions.DrawOptionsList;
 import necesse.gfx.drawables.SortedDrawable;
+import necesse.gfx.gameTexture.GameTexture;
 import necesse.gfx.ui.HUD;
 import necesse.inventory.InventoryItem;
 import necesse.inventory.item.Item;
+import necesse.inventory.item.ItemInteractAction;
 import necesse.level.maps.hudManager.HudDrawElement;
 
 import java.awt.*;
@@ -43,6 +45,7 @@ public class PlannerLevelEvent extends LevelEvent {
     private int placeInterval;
     private float placeTimer = 0;
     private boolean active = false;     // Currently on placing stage.
+    private boolean useAlt = false;     // Note: only meant for buckets (canPlace reason "sametile")
     private InventoryItem item;
     private HudDrawElement cursorDrawElement;
 
@@ -72,6 +75,8 @@ public class PlannerLevelEvent extends LevelEvent {
                     final DrawOptionsList drawOptions = new DrawOptionsList();
 
                     final float aimAlpha = active ? 0.5f : 1.0f;
+                    GameTexture tgtTex = useAlt ? MultiTools.greenTargetTexture : MultiTools.blueTargetTexture;
+                    GameTexture aimTex = useAlt ? MultiTools.greenAimTexture : MultiTools.blueAimTexture;
                     forEachPoint((tx, ty) -> {
                         final int drawX = camera.getTileDrawX(tx);
                         final int drawY = camera.getTileDrawY(ty);
@@ -79,7 +84,7 @@ public class PlannerLevelEvent extends LevelEvent {
                         if (drawX < -32 || drawX > camera.getWidth() + 32 || drawY < -32 || drawY > camera.getHeight() + 32)
                             return;
 
-                        drawOptions.add(() -> MultiTools.blueAimTexture.initDraw().alpha(aimAlpha).draw(drawX, drawY));
+                        drawOptions.add(() -> aimTex.initDraw().alpha(aimAlpha).draw(drawX, drawY));
                     });
 
                     if (active) {
@@ -90,7 +95,7 @@ public class PlannerLevelEvent extends LevelEvent {
                                 if (drawX < -32 || drawX > camera.getWidth() + 32 || drawY < -32 || drawY > camera.getHeight() + 32)
                                     return;
 
-                                drawOptions.add(() -> MultiTools.blueTargetTexture.initDraw().draw(drawX, drawY));
+                                drawOptions.add(() -> tgtTex.initDraw().draw(drawX, drawY));
                             });
                         }
                     }
@@ -129,6 +134,7 @@ public class PlannerLevelEvent extends LevelEvent {
             if (this.player == this.level.getClient().getPlayer()) {
                 GNDItem p1 = this.item.getGndData().getItem("p1");
                 GNDItem p2 = this.item.getGndData().getItem("p2");
+                this.useAlt = this.item.getGndData().getBoolean("usealt");
                 int tile1X, tile1Y;
                 int tile2X, tile2Y;
                 if (p2 instanceof GNDItemMap) {
@@ -169,6 +175,7 @@ public class PlannerLevelEvent extends LevelEvent {
         if (!this.isOver()) {
             GNDItem p1 = this.item.getGndData().getItem("p1");
             GNDItem p2 = this.item.getGndData().getItem("p2");
+            this.useAlt = this.item.getGndData().getBoolean("usealt");
             if (p1 instanceof GNDItemMap && p2 instanceof GNDItemMap) {
                 this.tile1X = ((GNDItemMap)p1).getInt("x");
                 this.tile1Y = ((GNDItemMap)p1).getInt("y");
@@ -270,9 +277,15 @@ public class PlannerLevelEvent extends LevelEvent {
                                 && x <= Math.max(tile1X, tile2X)
                                 && y >= Math.min(tile1Y, tile2Y)
                                 && y <= Math.max(tile1Y, tile2Y)
-                                && Util.wrapWithDirChange(this.player, objDir, () ->
-                                        item.canPlace(this.level, x * 32 + 16, y * 32 + 16, this.player, invItem,
-                                                new PacketReader(setupACP(invItem, x, y))) == null));
+                                && Util.wrapWithDirChange(this.player, objDir, () -> {
+                                    if (this.useAlt && item instanceof ItemInteractAction) {
+                                        return ("sametile").equals(item.canPlace(this.level, x * 32 + 16, y * 32 + 16, this.player, invItem,
+                                                new PacketReader(setupACP(invItem, x, y))));
+                                    } else {
+                                        return item.canPlace(this.level, x * 32 + 16, y * 32 + 16, this.player, invItem,
+                                                new PacketReader(setupACP(invItem, x, y))) == null;
+                                    }
+                                }));
                         if (shouldPlace) validPlacements.add(new Point(tx, ty));
                     })
                 )
@@ -284,9 +297,15 @@ public class PlannerLevelEvent extends LevelEvent {
                 for (Point p : validPlacements) {
                     float dist = this.player.getDistance(p.x * 32 + 16, p.y * 32 + 16);
                     boolean canPlace = ((PlannerItem) this.item.item).applyItemPair(this.item, (invItem, item) ->
-                            Util.wrapWithDirChange(this.player, objDir, () ->
-                                    item.canPlace(this.level, p.x * 32 + 16, p.y * 32 + 16, this.player, invItem,
-                                            new PacketReader(setupACP(invItem, p.x, p.y))) == null));
+                            Util.wrapWithDirChange(this.player, objDir, () -> {
+                                if (this.useAlt && item instanceof ItemInteractAction) {
+                                    return ("sametile").equals(item.canPlace(this.level, p.x * 32 + 16, p.y * 32 + 16, this.player, invItem,
+                                            new PacketReader(setupACP(invItem, p.x, p.y))));
+                                } else {
+                                    return item.canPlace(this.level, p.x * 32 + 16, p.y * 32 + 16, this.player, invItem,
+                                            new PacketReader(setupACP(invItem, p.x, p.y))) == null;
+                                }
+                            }));
                     if (dist > maxDist && canPlace) {
                         maxDist = dist;
                         furthest = p;
@@ -298,12 +317,19 @@ public class PlannerLevelEvent extends LevelEvent {
 
                     ((PlannerItem) this.item.item).acceptItemPair(this.item, (invItem, item) -> {
                         Packet packet = Util.wrapWithDirChange(this.player, objDir, () -> setupACP(invItem, p.x, p.y));
-                        item.onAttack(this.level,
-                                p.x * 32 + 16, p.y * 32 + 16,
-                                this.player, this.player.getCurrentAttackHeight(),
-                                invItem, this.player.getSelectedItemSlot(),
-                                1, Item.getRandomAttackSeed(GameRandom.globalRandom),
-                                new PacketReader(packet));
+                        if (this.useAlt && item instanceof ItemInteractAction) {
+                            ((ItemInteractAction)item).onInteract(this.level,
+                                    p.x * 32 + 16, p.y * 32 + 16,
+                                    this.player, this.player.getCurrentAttackHeight(),
+                                    invItem, this.player.getSelectedItemSlot());
+                        } else {
+                            item.onAttack(this.level,
+                                    p.x * 32 + 16, p.y * 32 + 16,
+                                    this.player, this.player.getCurrentAttackHeight(),
+                                    invItem, this.player.getSelectedItemSlot(),
+                                    1, Item.getRandomAttackSeed(GameRandom.globalRandom),
+                                    new PacketReader(packet));
+                        }
                         this.player.getSelectedItemSlot().markDirty(player.getInv());
                     });
                 }

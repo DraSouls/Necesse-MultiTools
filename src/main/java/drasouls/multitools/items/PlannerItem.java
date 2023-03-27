@@ -3,6 +3,7 @@ package drasouls.multitools.items;
 import drasouls.multitools.MultiTools;
 import drasouls.multitools.Util;
 import drasouls.multitools.items.planner.PlannerLevelEvent;
+import drasouls.multitools.ui.PlannerSidebarForm;
 import necesse.engine.Screen;
 import necesse.engine.localization.Localization;
 import necesse.engine.network.PacketReader;
@@ -15,6 +16,7 @@ import necesse.entity.mobs.PlayerMob;
 import necesse.entity.mobs.buffs.BuffModifiers;
 import necesse.gfx.GameColor;
 import necesse.gfx.camera.GameCamera;
+import necesse.gfx.forms.presets.sidebar.SidebarForm;
 import necesse.gfx.gameTooltips.ListGameTooltips;
 import necesse.gfx.gameTooltips.StringTooltips;
 import necesse.inventory.Inventory;
@@ -23,6 +25,7 @@ import necesse.inventory.PlaceableItemInterface;
 import necesse.inventory.PlayerInventorySlot;
 import necesse.inventory.container.item.ItemInventoryContainer;
 import necesse.inventory.item.Item;
+import necesse.inventory.item.ItemInteractAction;
 import necesse.inventory.item.miscItem.PouchItem;
 import necesse.inventory.item.placeableItem.PlaceableItem;
 import necesse.inventory.item.placeableItem.consumableItem.ConsumableItem;
@@ -77,6 +80,11 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
             i.drawIcon(invItem, perspective, x, y, size);
         });
         if (! getCurrentInventoryItem(item).isPresent()) this.drawStoredItems = false;
+    }
+
+    @Override
+    public SidebarForm getSidebar(InventoryItem item) {
+        return new PlannerSidebarForm(item);
     }
 
     public Optional<PlaceableItem> getCurrentItem(InventoryItem item) {
@@ -143,31 +151,24 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
 
 
     // PlaceableItem stuff
-    public boolean sameLevel(GNDItem levelItem, Level level) {
-        return levelItem instanceof GNDItemMap
-                && ((GNDItemMap) levelItem).getInt("x") == level.getIslandX()
-                && ((GNDItemMap) levelItem).getInt("y") == level.getIslandY()
-                && ((GNDItemMap) levelItem).getInt("d") == level.getDimension();
-    }
-
     public void updatePlannerEvent(InventoryItem item, PlayerMob player) {
+        boolean hasFirst = item.getGndData().getItem("p1") instanceof GNDItemMap;
+        boolean hasSecond = item.getGndData().getItem("p2") instanceof GNDItemMap;
+        boolean hasAlt = getCurrentInventoryItem(item).map(i -> i.item instanceof ItemInteractAction).orElse(false);
+        if (!hasAlt) item.getGndData().setBoolean("usealt", false);
+        PlannerSidebarForm.updateState(hasFirst, hasSecond, hasAlt);
+
         Level level = player.getLevel();
         GNDItem fromLevel = item.getGndData().getItem("level");
-        if (! this.sameLevel(fromLevel, level)) {
-            // Apparently when 0 is stored it's read as non-existent... So dont use non-zero default values on read
-            fromLevel = new GNDItemMap()
-                    .setInt("x", level.getIslandX())
-                    .setInt("y", level.getIslandY())
-                    .setInt("d", level.getDimension());
-
-            item.getGndData().setItem("level", fromLevel);
+        if (! level.getIdentifier().equals(fromLevel.toString())) {
+            item.getGndData().setString("level", level.getIdentifier().toString());
             item.getGndData().setItem("p1", null);
             item.getGndData().setItem("p2", null);
             item.getGndData().setInt("dir", 0);
             return;
         }
 
-        if (item.getGndData().getItem("p1") == null) return;
+        if (!hasFirst) return;
         if (player.getLevel().isClientLevel() ? PlannerLevelEvent.activeOnClient : PlannerLevelEvent.activeOnServer) return;
 
         level.entityManager.addLevelEventHidden(new PlannerLevelEvent(player, item));
@@ -176,22 +177,11 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
     public InventoryItem onAttack(Level level, int x, int y, PlayerMob player, int attackHeight, InventoryItem item, PlayerInventorySlot slot, int animAttack, int seed, PacketReader contentReader) {
         if (! getCurrentInventoryItem(item).isPresent()) return item;
 
-        GNDItem firstPos = item.getGndData().getItem("p1");
-        GNDItem secondPos = item.getGndData().getItem("p2");
+        boolean hasFirst = item.getGndData().getItem("p1") instanceof GNDItemMap;
+        boolean hasSecond = item.getGndData().getItem("p2") instanceof GNDItemMap;
 
-        // Both
-        if (firstPos instanceof GNDItemMap && secondPos instanceof GNDItemMap) {
-            // click when actively placing; reset
-            item.getGndData().setItem("p1", null);
-            item.getGndData().setItem("p2", null);
-            item.getGndData().setInt("dir", 0);
-
-            return item;
-        }
-
-        // None
-        if (! (firstPos instanceof GNDItemMap)) {
-            // first click
+        if (!hasFirst) {
+            // None: first click
             item.getGndData().setItem("p1",
                     new GNDItemMap()
                             .setInt("x", x / 32)
@@ -199,15 +189,20 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
             item.getGndData().setItem("p2", null);
             item.getGndData().setInt("dir", 0);
 
-            return item;
-        }
+        } else if (!hasSecond) {
+            // Only first: second click
+            item.getGndData().setItem("p2",
+                    new GNDItemMap()
+                            .setInt("x", x / 32)
+                            .setInt("y", y / 32));
+            item.getGndData().setInt("dir", 0x1000 | player.dir);
 
-        // second click
-        item.getGndData().setItem("p2",
-                new GNDItemMap()
-                        .setInt("x", x / 32)
-                        .setInt("y", y / 32));
-        item.getGndData().setInt("dir", 0x1000 | player.dir);
+        } else {
+            // Both: click when actively placing; reset
+            item.getGndData().setItem("p1", null);
+            item.getGndData().setItem("p2", null);
+            item.getGndData().setInt("dir", 0);
+        }
 
         return item;
     }

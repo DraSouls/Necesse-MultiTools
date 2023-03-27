@@ -30,11 +30,18 @@ public class Util {
         printSide(level, append, 1);
     }
 
+    private static Field modifierField = null;
+    private static Field accessModifierField() throws NoSuchFieldException {
+        if (modifierField == null) {
+            modifierField = ModifierManager.class.getDeclaredField("limitedModifiers");
+            modifierField.setAccessible(true);
+        }
+        return modifierField;
+    }
+
     public static <T> void runWithModifierChange(BuffManager buffManager, Modifier<T> modifier, T value, Runnable fn) {
         try {
-            Field modifierField = ModifierManager.class.getDeclaredField("modifiers");
-            modifierField.setAccessible(true);
-            Object[] modifiers = (Object[]) modifierField.get(buffManager);
+            Object[] modifiers = (Object[]) accessModifierField().get(buffManager);
 
             T origValue = buffManager.getModifier(modifier);
             modifiers[modifier.index] = value;
