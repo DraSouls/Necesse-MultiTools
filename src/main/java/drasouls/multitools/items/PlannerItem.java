@@ -160,7 +160,7 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
 
         Level level = player.getLevel();
         GNDItem fromLevel = item.getGndData().getItem("level");
-        if (! level.getIdentifier().equals(fromLevel.toString())) {
+        if (fromLevel == null || !level.getIdentifier().equals(fromLevel.toString())) {
             item.getGndData().setString("level", level.getIdentifier().toString());
             item.getGndData().setItem("p1", null);
             item.getGndData().setItem("p2", null);

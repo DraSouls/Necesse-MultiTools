@@ -9,7 +9,7 @@
 def modInfo = [
         modID          : "drasouls.multitools",
         modName        : "MultiTools",
-        modVersion     : "1.3.0",
+        modVersion     : "1.3.1",
         gameVersion    : "auto",
         modDescription : "Multitools to aid in mining and building.",
         author         : "Lyrthras; Nexrem",
