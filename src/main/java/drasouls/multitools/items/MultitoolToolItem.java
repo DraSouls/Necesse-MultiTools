@@ -156,13 +156,13 @@ public class MultitoolToolItem extends CustomPickaxeToolItem {
             ServerClient client = player.getServerClient();
             int currentTileID = level.getTileID(tileX, tileY);
             if (expectedTileID != currentTileID) {
-                client.sendPacket(new PacketChangeTile(tileX, tileY, currentTileID));
+                client.sendPacket(new PacketChangeTile(level, tileX, tileY, currentTileID));
             }
 
             int currentObjectID = level.getObjectID(tileX, tileY);
             int currentObjectRotation = currentObjectID == 0 ? 0 : level.getObjectRotation(tileX, tileY);
             if (expectedObjectID != currentObjectID || expectedObjectRotation != currentObjectRotation) {
-                client.sendPacket(new PacketChangeObject(tileX, tileY, currentObjectID, currentObjectRotation));
+                client.sendPacket(new PacketChangeObject(level, tileX, tileY, currentObjectID, currentObjectRotation));
             }
         }
 

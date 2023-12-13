@@ -112,8 +112,8 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
 
 
     // PouchItem stuff
-    protected void openContainer(ServerClient client, int slotIndex) {
-        PacketOpenContainer p = new PacketOpenContainer(MultiTools.plannerContainer, ItemInventoryContainer.getContainerContent(this, slotIndex));
+    protected void openContainer(ServerClient client, PlayerInventorySlot inventorySlot) {
+        PacketOpenContainer p = new PacketOpenContainer(MultiTools.plannerContainer, ItemInventoryContainer.getContainerContent(this, inventorySlot));
         ContainerRegistry.openAndSendContainer(client, p);
     }
 
