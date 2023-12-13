@@ -56,7 +56,7 @@ public class PlannerLevelEvent extends LevelEvent {
             throw new IllegalArgumentException("item using this event should be a PlannerItem");
         this.player = player;
         this.item = item;
-        this.placeInterval = item.item.getAnimAttacksCooldown(item, player) / 2;
+        this.placeInterval = item.item.getCooldown(item, player) / 2;
 
         if (player.getLevel().isClientLevel()) {
             activeOnClient = true;
@@ -253,7 +253,7 @@ public class PlannerLevelEvent extends LevelEvent {
         }
         if (current != this.item) {
             this.item = current;
-            this.placeInterval = this.item.item.getAnimAttacksCooldown(this.item, this.player) / 2;
+            this.placeInterval = this.item.item.getCooldown(this.item, this.player) / 2;
         }
         if (! ((PlannerItem)this.item.item).getCurrentInventoryItem(this.item).isPresent()) {
             this.item.getGndData().setItem("p1", null);
@@ -318,10 +318,12 @@ public class PlannerLevelEvent extends LevelEvent {
                     ((PlannerItem) this.item.item).acceptItemPair(this.item, (invItem, item) -> {
                         Packet packet = Util.wrapWithDirChange(this.player, objDir, () -> setupACP(invItem, p.x, p.y));
                         if (this.useAlt && item instanceof ItemInteractAction) {
-                            ((ItemInteractAction)item).onInteract(this.level,
+                            ((ItemInteractAction)item).onLevelInteract(this.level,
                                     p.x * 32 + 16, p.y * 32 + 16,
                                     this.player, this.player.getCurrentAttackHeight(),
-                                    invItem, this.player.getSelectedItemSlot());
+                                    invItem, this.player.getSelectedItemSlot(),
+                                    Item.getRandomAttackSeed(GameRandom.globalRandom),
+                                    new PacketReader(packet));
                         } else {
                             item.onAttack(this.level,
                                     p.x * 32 + 16, p.y * 32 + 16,

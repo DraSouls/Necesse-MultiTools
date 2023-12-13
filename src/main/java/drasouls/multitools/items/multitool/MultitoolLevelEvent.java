@@ -55,9 +55,9 @@ public class MultitoolLevelEvent extends LevelEvent {
         this.maxMining = ((MultitoolToolItem) item.item).getMaxMining();
         this.targetRangeFactor = ((MultitoolToolItem) item.item).getTargetRangeFactor();
 
-        this.attackInterval = item.item.getAnimAttacksCooldown(item, player);
+        this.attackInterval = item.item.getCooldown(item, player);
         this.smartMineSelectInterval = (int) (item.item.getAnimSpeed(item, player) * 0.6);
-        this.damagePerHit = (int) ((ToolDamageItem) item.item).getToolDmgPerHit(item, player);
+        this.damagePerHit = (int) ((ToolDamageItem) item.item).getToolHitDamage(item, 1, player); //getToolHitDamage takes item, hitNum, player
 
         this.currentlyMining = new ArrayList<>(this.maxMining);
         this.farTargets = new HashSet<>(this.maxTargets);
