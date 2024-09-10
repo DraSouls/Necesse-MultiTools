@@ -4,7 +4,6 @@ import drasouls.multitools.MultiTools;
 import drasouls.multitools.Util;
 import drasouls.multitools.items.planner.PlannerLevelEvent;
 import drasouls.multitools.ui.PlannerSidebarForm;
-import necesse.engine.Screen;
 import necesse.engine.localization.Localization;
 import necesse.engine.network.PacketReader;
 import necesse.engine.network.gameNetworkData.GNDItem;
@@ -12,6 +11,9 @@ import necesse.engine.network.gameNetworkData.GNDItemMap;
 import necesse.engine.network.packet.PacketOpenContainer;
 import necesse.engine.network.server.ServerClient;
 import necesse.engine.registries.ContainerRegistry;
+import necesse.engine.util.GameBlackboard;
+import necesse.engine.window.GameWindow;
+import necesse.engine.window.WindowManager;
 import necesse.entity.mobs.PlayerMob;
 import necesse.entity.mobs.buffs.BuffModifiers;
 import necesse.gfx.GameColor;
@@ -58,11 +60,12 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
         super.loadTextures();
     }
 
-    public ListGameTooltips getTooltips(InventoryItem item, PlayerMob perspective) {
-        ListGameTooltips tooltips = super.getTooltips(item, perspective);
+    public ListGameTooltips getTooltips(InventoryItem item, PlayerMob perspective, GameBlackboard blackboard) {
+        ListGameTooltips tooltips = super.getTooltips(item, perspective, blackboard);
         tooltips.add(Localization.translate("itemtooltip", "rclickinvopentip"));
-        acceptItemPair(item, (invItem, i) -> tooltips.add(new StringTooltips(i.getDisplayName(invItem), i.getRarityColor())));
-        if (!Screen.isKeyDown(340) && !Screen.isKeyDown(344)) {
+        acceptItemPair(item, (invItem, i) -> tooltips.add(new StringTooltips(i.getDisplayName(invItem), i.getRarityColor(invItem))));
+        GameWindow window = WindowManager.getWindow();
+        if (!window.isKeyDown(340) && !window.isKeyDown(344)) {
             tooltips.add(new StringTooltips(Localization.translate("ui", "shiftmoreinfo"), GameColor.LIGHT_GRAY));
         } else {
             tooltips.add(Localization.translate("itemtooltip", "drs_planner_tip1"));
@@ -112,8 +115,8 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
 
 
     // PouchItem stuff
-    protected void openContainer(ServerClient client, int slotIndex) {
-        PacketOpenContainer p = new PacketOpenContainer(MultiTools.plannerContainer, ItemInventoryContainer.getContainerContent(this, slotIndex));
+    protected void openContainer(ServerClient client, PlayerInventorySlot inventorySlot) {
+        PacketOpenContainer p = new PacketOpenContainer(MultiTools.plannerContainer, ItemInventoryContainer.getContainerContent(this, inventorySlot));
         ContainerRegistry.openAndSendContainer(client, p);
     }
 
@@ -195,7 +198,7 @@ public class PlannerItem extends PouchItem implements PlaceableItemInterface {
                     new GNDItemMap()
                             .setInt("x", x / 32)
                             .setInt("y", y / 32));
-            item.getGndData().setInt("dir", 0x1000 | player.dir);
+            item.getGndData().setInt("dir", 0x1000 | player.getDir());
 
         } else {
             // Both: click when actively placing; reset

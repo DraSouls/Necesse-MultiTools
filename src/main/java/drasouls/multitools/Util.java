@@ -54,7 +54,7 @@ public class Util {
 
     public static <R> R wrapWithDirChange(PlayerMob player, int toDir, Supplier<R> fn) {
         if ((toDir & 0x1000) == 0) return fn.get();
-        int origDir = player.dir;
+        int origDir = player.getDir();
         int origAttackDir = player.beforeAttackDir;
         boolean origAttacking = player.isAttacking;
         player.beforeAttackDir = toDir & 0xf;
@@ -62,7 +62,7 @@ public class Util {
         R ret = fn.get();
         player.beforeAttackDir = origAttackDir;
         player.isAttacking = origAttacking;
-        player.dir = origDir;
+        player.setDir(origDir);
         return ret;
     }
 
@@ -71,7 +71,7 @@ public class Util {
             fn.run();
             return;
         }
-        int origDir = player.dir;
+        int origDir = player.getDir();
         int origAttackDir = player.beforeAttackDir;
         boolean origAttacking = player.isAttacking;
         player.beforeAttackDir = toDir & 0xf;
@@ -79,6 +79,6 @@ public class Util {
         fn.run();
         player.beforeAttackDir = origAttackDir;
         player.isAttacking = origAttacking;
-        player.dir = origDir;
+        player.setDir(origDir);
     }
 }

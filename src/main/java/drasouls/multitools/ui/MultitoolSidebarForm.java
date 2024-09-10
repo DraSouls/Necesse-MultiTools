@@ -4,11 +4,10 @@ import drasouls.multitools.ObjectCategories;
 import drasouls.multitools.TileCategories;
 import drasouls.multitools.items.MultitoolToolItem;
 import drasouls.multitools.packet.PacketUpdateGNDData;
-import necesse.engine.Screen;
 import necesse.engine.localization.Localization;
 import necesse.engine.network.client.Client;
 import necesse.engine.network.gameNetworkData.GNDItemMap;
-import necesse.engine.tickManager.TickManager;
+import necesse.engine.gameLoop.tickManager.TickManager;
 import necesse.entity.mobs.PlayerMob;
 import necesse.gfx.camera.GameCamera;
 import necesse.gfx.drawOptions.DrawOptionsList;
@@ -21,6 +20,7 @@ import necesse.gfx.forms.presets.sidebar.SidebarForm;
 import necesse.gfx.gameFont.FontOptions;
 import necesse.gfx.gameTooltips.GameTooltips;
 import necesse.gfx.gameTooltips.StringTooltips;
+import necesse.gfx.Renderer;
 import necesse.gfx.ui.ButtonColor;
 import necesse.inventory.InventoryItem;
 import necesse.level.maps.hudManager.HudDrawElement;
@@ -159,7 +159,7 @@ public class MultitoolSidebarForm extends SidebarForm {
                         return;
 
                     final GameLight light = player.getLevel().getLightLevel(p.x, p.y);
-                    drawOptions.add(() -> Screen.initQuadDraw(32, 32).color(new Color(64, 24, 192,  alpha), true).light(light).draw(drawX, drawY));
+                    drawOptions.add(() -> Renderer.initQuadDraw(32, 32).color(new Color(64, 24, 192,  alpha), true).light(light).draw(drawX, drawY));
                 });
 
                 list.add(new SortedDrawable() {

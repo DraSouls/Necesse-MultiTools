@@ -7,7 +7,7 @@ import necesse.engine.GlobalData;
 import necesse.engine.Settings;
 import necesse.engine.network.PacketReader;
 import necesse.engine.network.PacketWriter;
-import necesse.engine.tickManager.TickManager;
+import necesse.engine.gameLoop.tickManager.TickManager;
 import necesse.entity.levelEvent.LevelEvent;
 import necesse.entity.mobs.PlayerMob;
 import necesse.gfx.camera.GameCamera;
@@ -55,9 +55,9 @@ public class MultitoolLevelEvent extends LevelEvent {
         this.maxMining = ((MultitoolToolItem) item.item).getMaxMining();
         this.targetRangeFactor = ((MultitoolToolItem) item.item).getTargetRangeFactor();
 
-        this.attackInterval = item.item.getAnimAttacksCooldown(item, player);
-        this.smartMineSelectInterval = (int) (item.item.getAnimSpeed(item, player) * 0.6);
-        this.damagePerHit = (int) ((ToolDamageItem) item.item).getToolDmgPerHit(item, player);
+        this.attackInterval = item.item.getAttackAnimTime(item, player) / item.item.getAnimAttacks(item);
+        this.smartMineSelectInterval = (int) (item.item.getAttackAnimTime(item, player) * 0.6);
+        this.damagePerHit = (int) ((ToolDamageItem) item.item).getToolDamagePerHit(item, player);
 
         this.currentlyMining = new ArrayList<>(this.maxMining);
         this.farTargets = new HashSet<>(this.maxTargets);
@@ -176,7 +176,9 @@ public class MultitoolLevelEvent extends LevelEvent {
         super.clientTick();
         if (!this.isOver()) {
             if (this.player == this.level.getClient().getPlayer()) {
-                if (targets.size() >= this.maxTargets) return;
+                if (targets.size() >= this.maxTargets) {
+                    return;
+                }
 
                 GameCamera camera = GlobalData.getCurrentState().getCamera();
                 this.levelX = camera.getMouseLevelPosX();
@@ -185,7 +187,9 @@ public class MultitoolLevelEvent extends LevelEvent {
                 if (Settings.smartMining) {
                     // TODO filter target priority
                     HUD.SmartMineTarget target = HUD.getFirstSmartHitTile(this.level, this.player, this.item, this.levelX, this.levelY);
-                    if (target == null) return;
+                    if (target == null) {
+                      return;
+                    }
                     tileX = target.x;
                     tileY = target.y;
                 } else {
@@ -194,7 +198,9 @@ public class MultitoolLevelEvent extends LevelEvent {
                 }
 
                 for (MiningTarget target : targets) {
-                    if (target.sameTileAs(tileX, tileY)) return;
+                    if (target.sameTileAs(tileX, tileY)) {
+                       return;
+                    }
                 }
 
                 ToolDamageItem toolItem = (ToolDamageItem)this.item.item;
@@ -243,7 +249,9 @@ public class MultitoolLevelEvent extends LevelEvent {
     }
 
     public void doDamage() {
-        if (!this.targetsValid) return;
+        if (!this.targetsValid) {
+            return;
+        }
         MultitoolToolItem toolItem = (MultitoolToolItem)this.item.item;
         recheckTargets();
         farTargets.clear();
@@ -264,12 +272,16 @@ public class MultitoolLevelEvent extends LevelEvent {
 
     public boolean canSmartMine(int tileX, int tileY) {
         MiningTarget recentTarget = targets.peekLast();
-        if (recentTarget == null) return true;
+        if (recentTarget == null) {
+          return true;
+        }
         if (recentTarget.sameTileAs(tileX, tileY)) {
             return this.level.getWorldEntity().getTime() - this.lastAddition < this.smartMineSelectInterval;
         }
         for (MiningTarget target : targets) {
-            if (target.sameTileAs(tileX, tileY)) return false;
+            if (target.sameTileAs(tileX, tileY)) {
+                return false;
+            }
         }
         return true;
     }

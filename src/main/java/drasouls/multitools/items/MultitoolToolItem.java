@@ -4,7 +4,6 @@ import drasouls.multitools.ObjectCategories;
 import drasouls.multitools.TileCategories;
 import drasouls.multitools.items.multitool.MultitoolAttackHandler;
 import drasouls.multitools.ui.MultitoolSidebarForm;
-import necesse.engine.Screen;
 import necesse.engine.localization.Localization;
 import necesse.engine.network.PacketReader;
 import necesse.engine.network.gameNetworkData.GNDItem;
@@ -12,6 +11,8 @@ import necesse.engine.network.gameNetworkData.GNDItemMap;
 import necesse.engine.network.packet.PacketChangeObject;
 import necesse.engine.network.packet.PacketChangeTile;
 import necesse.engine.network.server.ServerClient;
+import necesse.engine.window.GameWindow;
+import necesse.engine.window.WindowManager;
 import necesse.entity.levelEvent.toolItemEvent.ToolItemEvent;
 import necesse.entity.mobs.PlayerMob;
 import necesse.entity.mobs.attackHandler.AttackHandler;
@@ -49,16 +50,15 @@ public class MultitoolToolItem extends CustomPickaxeToolItem {
     }
 
     @Override
-    public ListGameTooltips getTooltips(InventoryItem item, PlayerMob perspective) {
-        ListGameTooltips tooltips = super.getTooltips(item, perspective);
-        if (!Screen.isKeyDown(340) && !Screen.isKeyDown(344)) {
+    public void addToolTooltips(ListGameTooltips tooltips) {
+        GameWindow window = WindowManager.getWindow();
+        if (!window.isKeyDown(340) && !window.isKeyDown(344)) {
             tooltips.add(new StringTooltips(Localization.translate("ui", "shiftmoreinfo"), GameColor.LIGHT_GRAY));
         } else {
             tooltips.add(Localization.translate("itemtooltip", "drs_pivelaxe_tip1"));
             tooltips.add(Localization.translate("itemtooltip", "drs_pivelaxe_tip2"));
             tooltips.add(Localization.translate("itemtooltip", "drs_pivelaxe_tip3"));
         }
-        return tooltips;
     }
 
     @Override
@@ -156,25 +156,25 @@ public class MultitoolToolItem extends CustomPickaxeToolItem {
             ServerClient client = player.getServerClient();
             int currentTileID = level.getTileID(tileX, tileY);
             if (expectedTileID != currentTileID) {
-                client.sendPacket(new PacketChangeTile(tileX, tileY, currentTileID));
+                client.sendPacket(new PacketChangeTile(level, tileX, tileY, currentTileID));
             }
 
             int currentObjectID = level.getObjectID(tileX, tileY);
             int currentObjectRotation = currentObjectID == 0 ? 0 : level.getObjectRotation(tileX, tileY);
             if (expectedObjectID != currentObjectID || expectedObjectRotation != currentObjectRotation) {
-                client.sendPacket(new PacketChangeObject(tileX, tileY, currentObjectID, currentObjectRotation));
+                client.sendPacket(new PacketChangeObject(level, tileX, tileY, currentObjectID, currentObjectRotation));
             }
         }
 
         // ToolItem.onAttack
         if (player == null) return item;
-        int animSpeed = this.getAnimSpeed(item, player);
-        ToolItemEvent toolEvent = new ToolItemEvent(player, seed, item, x - player.getX(), y - player.getY() + attackHeight, animSpeed, animSpeed, new HashMap<>());
+        int animSpeed = this.getAttackAnimTime(item, player);
+        ToolItemEvent toolEvent = new ToolItemEvent(player, seed, item, x - player.getX(), y - player.getY() + attackHeight, animSpeed, animSpeed);
         level.entityManager.addLevelEventHidden(toolEvent);
 
         // Our stuff
         if (!(player.getAttackHandler() instanceof MultitoolAttackHandler)) {
-            player.startAttackHandler(new MultitoolAttackHandler(player, slot, item, x, y, this.animAttacks, this.animSpeed, seed));
+            player.startAttackHandler(new MultitoolAttackHandler(player, slot, item, x, y, this.animAttacks, animSpeed, seed));
         }
         return item;
     }

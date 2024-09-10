@@ -55,15 +55,30 @@ public class MultiTools {
                 100,
                 12, 5, 2.5f);
         registerPivelaxe("tungsten",
-                300, 150, 2, 20, 55, 55,
+                350, 150, 2, 20, 55, 55,
                 800, Item.Rarity.RARE, 1,
                 160,
                 16, 6, 3f);
         registerPivelaxe("ice",
-                200, 160, 2, 23, 60, 60,
-                800, Item.Rarity.EPIC, 2,
+                300, 180, 4, 24, 60, 60,
+                1000, Item.Rarity.EPIC, 2,
+                200,
+                24, 10, 4f);
+        registerPivelaxe("glacial",
+                350, 165, 3, 20, 60, 60,
+                800, Item.Rarity.EPIC, 1,
                 160,
-                24, 8, 3.5f);
+                20, 8, 3.5f);
+        registerPivelaxe("mycelium",
+                250, 185, 4, 26, 65, 65,
+                1000, Item.Rarity.EPIC, 2,
+                220,
+                24, 10, 4f);
+        registerPivelaxe("fossil",
+                200, 195, 5, 26, 65, 65,
+                1000, Item.Rarity.EPIC, 3,
+                240,
+                26, 12, 4.5f);
     }
 
     public void initResources() {
@@ -145,6 +160,34 @@ public class MultiTools {
                 },
                 true
         ).showAfter("glacialboots"));
+        Recipes.registerModRecipe(new Recipe(
+                "drs_pivelaxe_glacial", 1,
+                RecipeTechRegistry.ADVANCED_WORKSTATION,
+                new Ingredient[]{
+                        new Ingredient("glacialpickaxe", 1),
+                        new Ingredient("glacialaxe", 1),
+                        new Ingredient("glacialshovel", 1),
+                }
+        ).showAfter("glacialshovel"));
+        Recipes.registerModRecipe(new Recipe(
+                "drs_pivelaxe_mycelium", 1,
+                RecipeTechRegistry.ADVANCED_WORKSTATION,
+                new Ingredient[]{
+                        new Ingredient("myceliumpickaxe", 1),
+                        new Ingredient("myceliumaxe", 1),
+                        new Ingredient("myceliumshovel", 1),
+                }
+        ).showAfter("myceliumshovel"));
+        Recipes.registerModRecipe(new Recipe(
+                "drs_pivelaxe_fossil", 1,
+                RecipeTechRegistry.ADVANCED_WORKSTATION,
+                new Ingredient[]{
+                        new Ingredient("ancientfossilpickaxe", 1),
+                        new Ingredient("ancientfossilaxe", 1),
+                        new Ingredient("ancientfossilshovel", 1),
+                }
+        ).showAfter("ancientfossilshovel"));
+
     }
 
 

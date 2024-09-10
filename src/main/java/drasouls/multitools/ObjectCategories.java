@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ObjectCategories {
     public static final String EXCLUDED_TAG = "EXCLUDED";
     public static final String[] ORDERING = {
-            "ore", "walls", "harvestable", "crafting", "storage", "objects", "transport", "wiring", "clutter"
+            "ore", "walls", "light", "harvestable", "crafting", "storage", "objects", "transport", "wiring", "clutter", "summon", "other"
     };
     public static final Map<String, Set<String>> COMPUTED = new LinkedHashMap<>();
     static { for (String s : ORDERING) COMPUTED.computeIfAbsent(s, k -> ConcurrentHashMap.newKeySet()); }
@@ -42,10 +42,11 @@ public class ObjectCategories {
             // excluded
             cat = CAT(EXCLUDED_TAG);
         } else if (object instanceof AncientTotemObject
-                || object instanceof RoyalEggObject) {
+                || object instanceof RoyalEggObject
+                || object instanceof SpiderEggObject) {
             // misc
-            // cat = CAT("misc", "summon");
-            cat = CAT(EXCLUDED_TAG);
+            cat = CAT("summon");
+            //cat = CAT(EXCLUDED_TAG);
         } else if (object instanceof GrassObject
                 || object instanceof CoinPileObject
                 || object instanceof SnowPileObject
@@ -56,11 +57,19 @@ public class ObjectCategories {
             cat = CAT("clutter");
         } else if (object instanceof GravestoneObject
                 || object instanceof StoneCoffinObject
-                || object instanceof RandomBreakObject) {
+                || object instanceof RandomBreakObject
+                || object instanceof KatanaStoneObject
+                || object instanceof FallenAltarObject
+                || object instanceof ChristmasWreathObject) {
             // clutter 2 (breakables)
             // cat = CAT("misc", "lootable");
             cat = CAT("clutter");
+        } else if (object instanceof TorchObject
+                || object instanceof TikiTorchObject
+                || object instanceof WallTorchObject) {
+            cat = CAT("light");
         } else if (object instanceof BannerStandObject
+                || object instanceof SpideriteArmorStandObject
                 || object instanceof CampfireObject
                 || object instanceof ColumnObject
                 || object instanceof FeedingTroughObject
@@ -68,7 +77,11 @@ public class ObjectCategories {
                 || object instanceof SettlementFlagObject
                 || object instanceof SignObject
                 || object instanceof TorchObject
+                || object instanceof TikiTorchObject
                 || object instanceof WallTorchObject
+                || object instanceof CandlePedestalObject
+                || object instanceof StreetlampObject
+                || object instanceof SnowManTrainingDummyObject
                 || object instanceof TrainingDummyObject) {
             // other objects
             cat = CAT("objects");
@@ -84,11 +97,19 @@ public class ObjectCategories {
             // inventory objects
             // cat = CAT("objects", "storage");
             cat = CAT("storage");
-        } else if (object instanceof SettlementWorkstationObject) {
+        } else if (object instanceof SettlementWorkstationObject
+                || object instanceof CartographerTableObject
+                || object instanceof IncineratorInventoryObject
+                || object instanceof UpgradeStationObject
+                || object instanceof SalvageStationObject) {
             // crafting and processing
             // cat = CAT("objects", "crafting");
             cat = CAT("crafting");
-        } else if (object instanceof RockOreObject) {
+        } else if (object instanceof RockOreObject
+                || object instanceof CrystalClusterObject
+                || object instanceof CrystalClusterSmallObject
+                || object instanceof SingleOreRockSmall
+                || object instanceof PearlescentShardObject) {
             // ore
             cat = CAT("ore");
         } else if (object instanceof RockObject
@@ -98,7 +119,8 @@ public class ObjectCategories {
             // walls
             cat = CAT("walls");
         } else if (object instanceof RoomFurniture
-                || object instanceof FlowerPotObject) {
+                || object instanceof FlowerPotObject
+                || object instanceof SpiderThroneObject) {
             // furniture
             // cat = CAT("furniture");
             cat = CAT("objects");
@@ -110,7 +132,12 @@ public class ObjectCategories {
             // cat = CAT("plants", "harvestable");
             cat = CAT("harvestable");
         } else if (object instanceof ForestryJobObject
-                || object instanceof SaplingObject) {
+                || object instanceof SaplingObject
+                || object.toolType == ToolType.AXE
+//                || object instanceof CutTreeTrunkObject
+//                || object instanceof FallenTreeTrunk1Object
+//                || object instanceof SmallSingleCactusObject
+) {
             // trees
             // cat = CAT("plants", "trees");
             cat = CAT("harvestable");
@@ -131,8 +158,8 @@ public class ObjectCategories {
             // wiring objects
             cat = CAT("wiring");
         } else {
-            GameLog.warn.printf("Uncategorized object %s of type %s\n", object.getDisplayName(), object.getClass());
-            return;
+            GameLog.warn.printf("Uncategorized object %s of type %s, id %s, added to \"other\" category\n", object.getDisplayName(), object.getClass(), object.getStringID());
+            cat = CAT("other");
         }
 
         if (EXCLUDED_TAG.equals(cat[0])) return;
